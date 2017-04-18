@@ -1,13 +1,14 @@
 package task1
 
 import (
-	"strings"
+	"bytes"
 )
 
-const PadStr = "\x04"
+const PadByte = byte(0x04)
 
-func Pkcs7Pad(str string, blockSize int) (string) {
-	padLength:= (len(str) / blockSize + 1) * blockSize - len(str)
-	padding:=strings.Repeat(PadStr, padLength)
-	return str+padding
+func Pkcs7Pad(data []byte, blockSize int) []byte {
+	padLength := (len(data)/blockSize+1)*blockSize - len(data)
+	padBArr := []byte{PadByte}
+	padding := bytes.Repeat(padBArr, padLength)
+	return append(data, padding...)
 }

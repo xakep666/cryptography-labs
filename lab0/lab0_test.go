@@ -1,18 +1,18 @@
 package main
 
 import (
-	"crypto/lab0/task1"
-	"crypto/lab0/task2"
-	"crypto/lab0/task3"
-	"crypto/lab0/task4"
-	"crypto/lab0/task5"
-	"crypto/lab0/task6"
-	"crypto/lab0/task7"
+	"cryptolabs/lab0/task1"
+	"cryptolabs/lab0/task2"
+	"cryptolabs/lab0/task3"
+	"cryptolabs/lab0/task4"
+	"cryptolabs/lab0/task5"
+	"cryptolabs/lab0/task6"
+	"cryptolabs/lab0/task7"
+	"cryptolabs/lab0/task8"
 	"encoding/hex"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
-	"crypto/lab0/task8"
 )
 
 func TestTask1(t *testing.T) {
@@ -45,21 +45,21 @@ func TestTask3(t *testing.T) {
 }
 
 func TestTask4(t *testing.T) {
-	bfKeys:="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !@#$%^&*(){}[]:;',./<>?=+`~\"\\|"
-	decodedStr, key, line, err := task4.FindSingleXorStr("detectSingleXor16",bfKeys)
+	bfKeys := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz !@#$%^&*(){}[]:;',./<>?=+`~\"\\|"
+	decodedStr, key, line, err := task4.FindSingleXorStr("detectSingleXor16", bfKeys)
 	assert.NoError(t, err)
 	fmt.Printf("%s; key %c; line %d\n", decodedStr, key, line)
 }
 
 func TestTask5(t *testing.T) {
-	str:="Never trouble about trouble until trouble troubles you!"
-	key:="ICE"
+	str := "Never trouble about trouble until trouble troubles you!"
+	key := "ICE"
 	bytes := task5.XorRepitiveKey([]byte(str), []byte(key))
 	fmt.Println(hex.EncodeToString(bytes))
 }
 
 func TestTask6(t *testing.T) {
-	bfKeys:="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ,.:"
+	bfKeys := "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz ,.:"
 	err := task6.BruteForceBase64Encoded("breakRepeatedKeyXor.txt", bfKeys)
 	assert.NoError(t, err)
 }

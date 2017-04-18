@@ -8,16 +8,17 @@ import (
 
 var hexRegex = regexp.MustCompile("^[0-9a-z]*$")
 var base64Regex = regexp.MustCompile("^[A-Za-z0-9+/]*={0,3}$")
+
 const base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
+
 var base64Map = map[rune]byte{}
 
 func init() {
 	// generate base64 map
 	for idx, char := range base64Alphabet {
-		base64Map[char]=byte(idx)
+		base64Map[char] = byte(idx)
 	}
 }
-
 
 func DecodeHexStr(str string) ([]byte, error) {
 	str = strings.ToLower(str)
@@ -74,37 +75,37 @@ func EncodeBase64(buf []byte) string {
 }
 
 func DecodeBase64(str string) ([]byte, error) {
-	if !base64Regex.MatchString(str) || len(str)%4 != 0{
+	if !base64Regex.MatchString(str) || len(str)%4 != 0 {
 		return nil, errors.New("Invalid base64-string")
 	}
 
-	ret:=make([]byte, len(str)*6/8)
+	ret := make([]byte, len(str)*6/8)
 	str = strings.Trim(str, "=") //trim padding
-	sidx:=0
-	didx:=0
-	for ;sidx<(len(str) / 4) * 4;sidx+=4 {
+	sidx := 0
+	didx := 0
+	for ; sidx < (len(str)/4)*4; sidx += 4 {
 		//convert 4 letters to 3 bytes
-		ret[didx+0]|=base64Map[rune(str[sidx+0])]<<2
-		ret[didx+0]|=(base64Map[rune(str[sidx+1])]&0x30)>>4
-		ret[didx+1]|=(base64Map[rune(str[sidx+1])]&0xF)<<4
-		ret[didx+1]|=(base64Map[rune(str[sidx+2])]&0x3C)>>2
-		ret[didx+2]|=(base64Map[rune(str[sidx+2])]&0x3)<<6
-		ret[didx+2]|=base64Map[rune(str[sidx+3])]
-		didx+=3
+		ret[didx+0] |= base64Map[rune(str[sidx+0])] << 2
+		ret[didx+0] |= (base64Map[rune(str[sidx+1])] & 0x30) >> 4
+		ret[didx+1] |= (base64Map[rune(str[sidx+1])] & 0xF) << 4
+		ret[didx+1] |= (base64Map[rune(str[sidx+2])] & 0x3C) >> 2
+		ret[didx+2] |= (base64Map[rune(str[sidx+2])] & 0x3) << 6
+		ret[didx+2] |= base64Map[rune(str[sidx+3])]
+		didx += 3
 	}
 
 	// add remaining
-	switch len(str)%4 {
+	switch len(str) % 4 {
 	case 3:
-		ret[didx+1]|=(base64Map[rune(str[sidx+2])]&0x3C)>>2
-		ret[didx+2]|=(base64Map[rune(str[sidx+2])]&0x3)<<6
+		ret[didx+1] |= (base64Map[rune(str[sidx+2])] & 0x3C) >> 2
+		ret[didx+2] |= (base64Map[rune(str[sidx+2])] & 0x3) << 6
 		fallthrough
 	case 2:
-		ret[didx+0]|=(base64Map[rune(str[sidx+1])]&0x30)>>4
-		ret[didx+1]|=(base64Map[rune(str[sidx+1])]&0xF)<<4
+		ret[didx+0] |= (base64Map[rune(str[sidx+1])] & 0x30) >> 4
+		ret[didx+1] |= (base64Map[rune(str[sidx+1])] & 0xF) << 4
 		fallthrough
 	case 1:
-		ret[didx+0]|=base64Map[rune(str[sidx+0])]<<2
+		ret[didx+0] |= base64Map[rune(str[sidx+0])] << 2
 	}
 	return ret[:len(ret)-len(str)%4], nil
 }

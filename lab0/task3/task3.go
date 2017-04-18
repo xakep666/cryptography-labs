@@ -15,7 +15,7 @@ const filterChars = "*#@$"
 func GetFreqScore(str string) (ret float64) {
 	str = strings.ToLower(str)
 	charFreqs := make([]float64, len(charFreqsEthalon))
-	letters:=float64(0)
+	letters := float64(0)
 	for _, chr := range str {
 		if (chr <= 'z') && (chr >= 'a') {
 			charFreqs[chr-'a']++
@@ -23,8 +23,8 @@ func GetFreqScore(str string) (ret float64) {
 		}
 	}
 	for i := 0; i < len(charFreqs); i++ {
-		charFreqs[i]/=letters
-		ret += math.Abs(math.Log2(math.Abs(charFreqs[i] - charFreqsEthalon[i] / 100)))
+		charFreqs[i] /= letters
+		ret += math.Abs(math.Log2(math.Abs(charFreqs[i] - charFreqsEthalon[i]/100)))
 	}
 	return
 }
@@ -42,13 +42,13 @@ func BruteForceOneByteXor(bytes []byte, alph string) (string, byte, error) {
 	maxScore := 0.
 	key := byte(0)
 	decodedStr := ""
-	for _, i:=range alph {
+	for _, i := range alph {
 		str := string(OneByteXor(bytes, byte(i)))
 		if strings.ContainsAny(str, filterChars) {
 			continue
 		}
-		nonPrintable:=0.
-		for _, chr:=range str {
+		nonPrintable := 0.
+		for _, chr := range str {
 			if !unicode.IsPrint(rune(chr)) {
 				nonPrintable++
 			}
