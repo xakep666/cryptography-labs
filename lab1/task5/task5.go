@@ -51,22 +51,18 @@ func detectBlockSize(blackBox func([]byte) []byte) int {
 
 func bruteNextByte(blackBox func([]byte) []byte, blkSize int, knownBytes []byte) (byte, bool) {
 	myStr := bytes.Repeat([]byte{0xAE}, blkSize-(len(knownBytes)%blkSize)-1)
-	dict := map[string]byte{} // map[[]byte]byte
-	for i := 0; i <= 0xFF; i++ {
-		bfInput := append(myStr, knownBytes...)
-		bfInput = append(bfInput, byte(i))
-		cipherText := blackBox(bfInput)
-		dict[string(cipherText[0:len(myStr)+len(knownBytes)+1])] = byte(i)
-	}
 	cipherText := blackBox(myStr)
 	toExtractLength := len(myStr) + len(knownBytes) + 1
 	if toExtractLength >= len(cipherText) {
 		return 0, false
 	}
-	blk := string(cipherText[0:toExtractLength])
-	for k, v := range dict {
-		if k == blk {
-			return v, true
+	blk := cipherText[0:toExtractLength]
+	for i := 0; i <= 0xFF; i++ {
+		bfInput := append(myStr, knownBytes...)
+		bfInput = append(bfInput, byte(i))
+		cipherText := blackBox(bfInput)
+		if bytes.Equal(cipherText[0:len(myStr)+len(knownBytes)+1], blk) {
+			return byte(i), true
 		}
 	}
 	return 0, false
