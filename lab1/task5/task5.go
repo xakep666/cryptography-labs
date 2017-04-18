@@ -63,7 +63,7 @@ func bruteNextByte(blackBox func([]byte) []byte, blkSize int, knownBytes []byte)
 		cipherText := blackBox(bfInput)
 		if bytes.Equal(cipherText[0:len(myStr)+len(knownBytes)+1], blk) {
 			// drop padding
-			if byte(i)==task1.PadByte {
+			if byte(i) == task1.PadByte {
 				return 0, false
 			}
 			return byte(i), true

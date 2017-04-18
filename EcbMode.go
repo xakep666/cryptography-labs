@@ -2,50 +2,33 @@ package cryptolabs
 
 import "crypto/cipher"
 
+type transformFn func(dst []byte, src []byte)
+
 type ecb struct {
 	b         cipher.Block
 	blockSize int
+	fn        transformFn
 }
 
-func newECB(b cipher.Block) *ecb {
-	return &ecb{
+func newECB(b cipher.Block, fn transformFn) ecb {
+	return ecb{
 		b:         b,
 		blockSize: b.BlockSize(),
+		fn:        fn,
 	}
 }
-
-type ecbEncrypter ecb
 
 func NewECBEncrypter(b cipher.Block) cipher.BlockMode {
-	return (*ecbEncrypter)(newECB(b))
+	return newECB(b, b.Encrypt)
 }
-
-func (e *ecbEncrypter) BlockSize() int { return e.blockSize }
-
-func (e *ecbEncrypter) CryptBlocks(dst, src []byte) {
-	if len(src)%e.blockSize != 0 {
-		panic("ecb: input not full blocks")
-	}
-	if len(dst) < len(src) {
-		panic("ecb: output smaller than input")
-	}
-
-	for len(src) > 0 {
-		e.b.Encrypt(dst[:e.blockSize], src[:e.blockSize])
-		src = src[e.blockSize:]
-		dst = dst[e.blockSize:]
-	}
-}
-
-type ecbDecrypter ecb
 
 func NewECBDecrypter(b cipher.Block) cipher.BlockMode {
-	return (*ecbEncrypter)(newECB(b))
+	return newECB(b, b.Decrypt)
 }
 
-func (e *ecbDecrypter) BlockSize() int { return e.blockSize }
+func (e ecb) BlockSize() int { return e.blockSize }
 
-func (e *ecbDecrypter) CryptBlocks(dst, src []byte) {
+func (e ecb) CryptBlocks(dst, src []byte) {
 	if len(src)%e.blockSize != 0 {
 		panic("ecb: input not full blocks")
 	}
@@ -54,7 +37,7 @@ func (e *ecbDecrypter) CryptBlocks(dst, src []byte) {
 	}
 
 	for len(src) > 0 {
-		e.b.Decrypt(dst[:e.blockSize], src[:e.blockSize])
+		e.fn(dst[:e.blockSize], src[:e.blockSize])
 		src = src[e.blockSize:]
 		dst = dst[e.blockSize:]
 	}

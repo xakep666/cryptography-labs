@@ -6,6 +6,7 @@ import (
 	"cryptolabs/lab1/task3"
 	"cryptolabs/lab1/task4"
 	"cryptolabs/lab1/task5"
+	"cryptolabs/lab1/task6"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
@@ -49,4 +50,15 @@ func TestTask4(t *testing.T) {
 func TestTask5(t *testing.T) {
 	decrypted := task5.ECBKeyLessRead()
 	fmt.Println(string(decrypted))
+}
+
+func TestTask6(t *testing.T) {
+	profile := task6.ProfileFor("mymail@gmail.com")
+	fmt.Println("Generated Profile:", profile)
+	patchedProfile := task6.SpecialPadEmail(profile)
+	fmt.Println("Preared profile:", patchedProfile)
+	encryptedProfile := task6.EncryptProfile(patchedProfile)
+	patchedEncryptedProfile := task6.ReplaceRoleInCipherText(encryptedProfile, "admin")
+	fmt.Println("Decrypted patched profile")
+	task6.DecryptAndPrintProfile(patchedEncryptedProfile)
 }
