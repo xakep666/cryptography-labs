@@ -7,6 +7,7 @@ import (
 	"cryptolabs/lab1/task4"
 	"cryptolabs/lab1/task5"
 	"cryptolabs/lab1/task6"
+	"cryptolabs/lab1/task7"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
@@ -48,7 +49,10 @@ func TestTask4(t *testing.T) {
 }
 
 func TestTask5(t *testing.T) {
-	decrypted := task5.ECBKeyLessRead()
+	blkSize := task5.DetectBlockSize(task5.EcbWithSuffix)
+	fmt.Println("Got block size", blkSize)
+	fmt.Println("Decrypting...")
+	decrypted := task5.ECBKeyLessRead(task5.EcbWithSuffix, blkSize)
 	fmt.Println(string(decrypted))
 }
 
@@ -61,4 +65,14 @@ func TestTask6(t *testing.T) {
 	patchedEncryptedProfile := task6.ReplaceRoleInCipherText(encryptedProfile, "admin")
 	fmt.Println("Decrypted patched profile")
 	task6.DecryptAndPrintProfile(patchedEncryptedProfile)
+}
+
+func TestTask7(t *testing.T) {
+	blkSize := task5.DetectBlockSize(task7.EncryptWithRandPrefix)
+	fmt.Println("Got block size", blkSize)
+	prefixSize := task7.FindPrefixSize(task7.EncryptWithRandPrefix, blkSize)
+	fmt.Println("Got prefix size", prefixSize)
+	fmt.Println("Decrypting...")
+	decrypted := task7.ECBKeyLessReadWithPrefix(task7.EncryptWithRandPrefix, blkSize, prefixSize)
+	fmt.Println(string(decrypted))
 }

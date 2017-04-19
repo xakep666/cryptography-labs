@@ -10,7 +10,7 @@ import (
 	"cryptolabs/lab1/task3"
 )
 
-const unknownStrBase64 = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkga" +
+const UnknownStrBase64 = "Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkga" +
 	"GFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBqdXN0IHRvIHNheSBoaQp" +
 	"EaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUgYnkK"
 
@@ -23,13 +23,13 @@ func init() {
 		panic(err)
 	}
 	mode = cryptolabs.NewECBEncrypter(blk)
-	decodedB64Str, err = task12.DecodeBase64(unknownStrBase64)
+	decodedB64Str, err = task12.DecodeBase64(UnknownStrBase64)
 	if err != nil {
 		panic(err)
 	}
 }
 
-func ecbWithSuffix(data []byte) []byte {
+func EcbWithSuffix(data []byte) []byte {
 	data = append(data, decodedB64Str...)
 	data = task1.Pkcs7Pad(data, mode.BlockSize())
 	ret := make([]byte, len(data))
@@ -37,14 +37,14 @@ func ecbWithSuffix(data []byte) []byte {
 	return ret
 }
 
-func detectBlockSize(blackBox func([]byte) []byte) int {
+func DetectBlockSize(blackBox func([]byte) []byte) int {
 	plainText := []byte{}
+	zeroInputLen := len(blackBox([]byte{}))
 	for {
 		plainText = append(plainText, byte(0xAE))
 		cipherText := blackBox(append(plainText, plainText...))
-		pLen := len(plainText)
-		if bytes.Compare(cipherText[0:pLen], cipherText[pLen:2*pLen]) == 0 {
-			return pLen
+		if len(cipherText) != zeroInputLen {
+			return len(cipherText) - zeroInputLen
 		}
 	}
 }
@@ -61,26 +61,21 @@ func bruteNextByte(blackBox func([]byte) []byte, blkSize int, knownBytes []byte)
 		bfInput := append(myStr, knownBytes...)
 		bfInput = append(bfInput, byte(i))
 		cipherText := blackBox(bfInput)
-		if bytes.Equal(cipherText[0:len(myStr)+len(knownBytes)+1], blk) {
-			// drop padding
-			if byte(i) == task1.PadByte {
-				return 0, false
-			}
+		if bytes.Equal(cipherText[0:toExtractLength], blk) {
 			return byte(i), true
 		}
 	}
 	return 0, false
 }
 
-func ECBKeyLessRead() []byte {
-	blkSize := detectBlockSize(ecbWithSuffix)
+func ECBKeyLessRead(blackBox func([]byte) []byte, blkSize int) []byte {
 	decrypted := []byte{}
 	for {
-		b, ok := bruteNextByte(ecbWithSuffix, blkSize, decrypted)
+		b, ok := bruteNextByte(blackBox, blkSize, decrypted)
 		if !ok {
 			break
 		}
 		decrypted = append(decrypted, b)
 	}
-	return decrypted
+	return bytes.TrimRight(decrypted, string([]byte{task1.PadByte}))
 }
