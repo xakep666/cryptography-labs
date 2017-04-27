@@ -7,6 +7,7 @@ import (
 	"cryptolabs"
 	task12 "cryptolabs/lab0/task1"
 	"cryptolabs/lab1/task1"
+	"cryptolabs/lab1/task2"
 	"cryptolabs/lab1/task3"
 )
 
@@ -77,5 +78,6 @@ func ECBKeyLessRead(blackBox func([]byte) []byte, blkSize int) []byte {
 		}
 		decrypted = append(decrypted, b)
 	}
-	return bytes.TrimRight(decrypted, string([]byte{task1.PadByte}))
+	ret, _ := task2.TrimPkcs7Pad([]byte(decrypted))
+	return ret
 }

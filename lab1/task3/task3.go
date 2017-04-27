@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"cryptolabs/lab1/task1"
+	"cryptolabs/lab1/task2"
 	"errors"
 	"math/rand"
 	"strings"
@@ -77,6 +78,7 @@ func ExploitCbc(exploit string) (string, error) {
 	start := findBlockStartToCorrupt(block)
 	cipherPatch := patch(exploit, cipherText[start:])
 	cipherText = append(cipherText[:start], cipherPatch...)
-	ret := decryptData(cipherText, key, block)
-	return strings.TrimRight(ret, string([]byte{task1.PadByte})), nil
+	decrypted := decryptData(cipherText, key, block)
+	ret, err := task2.TrimPkcs7Pad([]byte(decrypted))
+	return string(ret), err
 }

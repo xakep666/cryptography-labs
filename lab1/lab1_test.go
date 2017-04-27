@@ -18,18 +18,19 @@ func TestTask1(t *testing.T) {
 	source := "YELLOW SUBMARINE"
 	blockSize := 20
 	target := "YELLOW SUBMARINE\x04\x04\x04\x04"
-	padded := task1.Pkcs7Pad([]byte(source), blockSize)
+	padded := string(task1.Pkcs7Pad([]byte(source), blockSize))
+	fmt.Println(padded)
 	assert.Equal(t, target, padded)
 }
 
 func TestTask2(t *testing.T) {
-	nonPadded, err := task2.TrimPkcs7Pad("ICE ICE BABY\x04\x04\x04\x04")
+	nonPadded, err := task2.TrimPkcs7Pad([]byte("ICE ICE BABY\x04\x04\x04\x04"))
 	if assert.NoError(t, err) {
-		assert.Equal(t, "ICE ICE BABY", nonPadded)
+		assert.Equal(t, "ICE ICE BABY", string(nonPadded))
 	}
-	_, err = task2.TrimPkcs7Pad("ICE ICE BABY\x05\x05\x05\x05")
+	_, err = task2.TrimPkcs7Pad([]byte("ICE ICE BABY\x05\x05\x05\x05"))
 	assert.Error(t, err)
-	_, err = task2.TrimPkcs7Pad("ICE ICE BABY\x01\x02\x03\x04")
+	_, err = task2.TrimPkcs7Pad([]byte("ICE ICE BABY\x01\x02\x03\x04"))
 	assert.Error(t, err)
 }
 

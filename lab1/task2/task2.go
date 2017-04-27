@@ -1,22 +1,15 @@
 package task2
 
-import (
-	"cryptolabs/lab1/task1"
-	"errors"
-	"strings"
-	"unicode"
-)
+import "errors"
 
-func TrimPkcs7Pad(padded string) (ret string, err error) {
-	ret = strings.TrimRightFunc(padded, func(chr rune) bool {
-		if !unicode.IsPrint(chr) {
-			if chr != rune(task1.PadByte) {
-				err = errors.New("invalid padding character found")
-				return false
-			}
-			return true
+func TrimPkcs7Pad(padded []byte) ([]byte, error) {
+	padLength := padded[len(padded)-1]
+	padding := padded[byte(len(padded))-padLength : len(padded)-1]
+	//check padding
+	for _, v := range padding {
+		if v != padLength {
+			return nil, errors.New("invalid padding")
 		}
-		return false
-	})
-	return
+	}
+	return padded[0 : len(padded)-len(padding)-1], nil
 }

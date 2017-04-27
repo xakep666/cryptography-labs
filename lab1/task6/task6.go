@@ -1,11 +1,11 @@
 package task6
 
 import (
-	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"cryptolabs"
 	"cryptolabs/lab1/task1"
+	"cryptolabs/lab1/task2"
 	"cryptolabs/lab1/task3"
 	"fmt"
 	"math/rand"
@@ -70,7 +70,8 @@ func EncryptProfile(profile string) []byte {
 func decryptProfile(cipherText []byte) string {
 	ret := make([]byte, len(cipherText))
 	ecbDec.CryptBlocks(ret, cipherText)
-	return string(bytes.TrimRight(ret, string([]byte{task1.PadByte})))
+	unpadded, _ := task2.TrimPkcs7Pad(ret)
+	return string(unpadded)
 }
 
 // pad email so role value only in last block
