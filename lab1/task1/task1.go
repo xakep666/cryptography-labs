@@ -5,7 +5,7 @@ import (
 )
 
 func Pkcs7Pad(data []byte, blockSize int) []byte {
-	padLength := (len(data)/blockSize+1)*blockSize - len(data)
+	padLength := blockSize - (len(data) % blockSize)
 	padBArr := []byte{byte(padLength)}
 	padding := bytes.Repeat(padBArr, padLength)
 	return append(data, padding...)
