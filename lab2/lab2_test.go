@@ -4,6 +4,7 @@ import (
 	"cryptolabs/lab2/task1"
 	"cryptolabs/lab2/task2"
 	"cryptolabs/lab2/task5"
+	"cryptolabs/lab2/task7"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -27,4 +28,8 @@ func TestTask5(t *testing.T) {
 	file := "testMT19937.txt"
 	seed := uint32(5489)
 	assert.NoError(t, task5.TestMT19937(file, seed))
+}
+
+func TestTask7(t *testing.T) {
+	assert.NoError(t, task7.CloneMT19937Out())
 }
