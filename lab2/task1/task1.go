@@ -107,6 +107,7 @@ func decLastBlock(iv, cipherText []byte, paddingCheck paddingCheckFn) (knownPlai
 func DecLine(iv, cipherText []byte, paddingCheck paddingCheckFn) (knownPlain []byte) {
 	ctLen := len(cipherText)
 	blkLen := len(iv)
+	// exploiting: brute-force plaintext byte to perform bit-flipping attack to get valid padding
 	for i := 0; i < ctLen/blkLen; i++ {
 		knownPlain = append(decLastBlock(iv, cipherText[:ctLen-i*blkLen], paddingCheck), knownPlain...)
 	}
