@@ -1,9 +1,12 @@
 package lab2
 
 import (
+	"cryptolabs"
 	"cryptolabs/lab2/task1"
 	"cryptolabs/lab2/task2"
+	"cryptolabs/lab2/task3"
 	"cryptolabs/lab2/task5"
+	"cryptolabs/lab2/task6"
 	"cryptolabs/lab2/task7"
 	"fmt"
 	"github.com/stretchr/testify/assert"
@@ -24,10 +27,26 @@ func TestTask2(t *testing.T) {
 	}
 }
 
+func TestTask3(t *testing.T) {
+	for _, v := range task3.BreakUsingSubsts() {
+		fmt.Println(v)
+	}
+}
+
 func TestTask5(t *testing.T) {
 	file := "testMT19937.txt"
 	seed := uint32(5489)
 	assert.NoError(t, task5.TestMT19937(file, seed))
+}
+
+func TestTask6(t *testing.T) {
+	seed := task6.CreateSeed()
+	var gen cryptolabs.MT19937
+	gen.Seed(seed)
+	guessSeed, err := task6.CrackSeed(seed, gen.Uint32())
+	if assert.NoError(t, err) {
+		assert.Equal(t, seed, guessSeed)
+	}
 }
 
 func TestTask7(t *testing.T) {

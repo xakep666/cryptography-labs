@@ -3,6 +3,7 @@ package task7
 import (
 	"cryptolabs"
 	"errors"
+	"fmt"
 	"time"
 )
 
@@ -57,16 +58,17 @@ func CloneMT19937Out() error {
 	seed := uint32(time.Now().Unix())
 	gen.Seed(seed)
 	var myState [624]uint32
-	for i := 0; i < len(myState); i++ {
+	for i := 0; i < len(myState)-1; i++ {
 		myState[i] = untemper(gen.Uint32())
 	}
 	gen2.State = myState
-
 	for i := 0; i < 1000; i++ {
 		source := gen.Uint32()
 		cloned := gen2.Uint32()
+		fmt.Println(source, cloned)
 		if source != cloned {
-			return errors.New("cloning error")
+			return errors.New(fmt.Sprintf("clone error, result at iteration %d (%d)"+
+				" different from original generator (%d)\n", i, cloned, source))
 		}
 	}
 	return nil
