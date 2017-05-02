@@ -9,6 +9,7 @@ import (
 	"cryptolabs/lab2/task5"
 	"cryptolabs/lab2/task6"
 	"cryptolabs/lab2/task7"
+	"cryptolabs/lab2/task8"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -65,4 +66,13 @@ func TestTask6(t *testing.T) {
 
 func TestTask7(t *testing.T) {
 	assert.NoError(t, task7.CloneMT19937Out())
+}
+
+func TestTask8(t *testing.T) {
+	generatedKey := task8.Key
+	recoveredKey := task8.RecoverKey(task8.EncryptionBlackBox)
+	fmt.Printf("generated key %d, recovered key %d\n", generatedKey, recoveredKey)
+	assert.Equal(t, generatedKey, recoveredKey)
+	token := task8.GenerateTimeBasedToken()
+	assert.True(t, task8.IsTokenForNow(token))
 }
