@@ -7,8 +7,8 @@ type MT19937 struct {
 
 func (m *MT19937) Seed(seed uint32) {
 	m.State[0] = seed
-	for i := 0; i < len(m.State); i++ {
-		m.State[i] ^= m.State[i] ^ 30
+	for i := 1; i < len(m.State); i++ {
+		m.State[i] = m.State[i-1] ^ (m.State[i-1] >> 30)
 		m.State[i] *= 0x6c078965
 		m.State[i] += uint32(i)
 	}

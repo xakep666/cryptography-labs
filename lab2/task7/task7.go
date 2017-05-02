@@ -58,7 +58,7 @@ func CloneMT19937Out() error {
 	seed := uint32(time.Now().Unix())
 	gen.Seed(seed)
 	var myState [624]uint32
-	for i := 0; i < len(myState)-1; i++ {
+	for i := 0; i < len(myState); i++ {
 		myState[i] = untemper(gen.Uint32())
 	}
 	gen2.State = myState

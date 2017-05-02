@@ -5,6 +5,7 @@ import (
 	"cryptolabs/lab2/task1"
 	"cryptolabs/lab2/task2"
 	"cryptolabs/lab2/task3"
+	"cryptolabs/lab2/task4"
 	"cryptolabs/lab2/task5"
 	"cryptolabs/lab2/task6"
 	"cryptolabs/lab2/task7"
@@ -33,6 +34,15 @@ func TestTask3(t *testing.T) {
 	}
 }
 
+func TestTask4(t *testing.T) {
+	data, err := task4.LoadDataFromFile("Lab2_breakctr3-b64.txt")
+	assert.NoError(t, err)
+	line, keyLen := task4.PreProcessLines(data)
+	for _, v := range task4.SplitLines(task4.BreakRepeatedKeyXor(line, keyLen), keyLen) {
+		fmt.Println(string(v))
+	}
+}
+
 func TestTask5(t *testing.T) {
 	file := "testMT19937.txt"
 	seed := uint32(5489)
@@ -40,10 +50,14 @@ func TestTask5(t *testing.T) {
 }
 
 func TestTask6(t *testing.T) {
-	seed := task6.CreateSeed()
-	var gen cryptolabs.MT19937
+	seed, genTime := task6.CreateSeed()
+	gen := new(cryptolabs.MT19937)
 	gen.Seed(seed)
-	guessSeed, err := task6.CrackSeed(seed, gen.Uint32())
+	for i := 0; i < 100; i++ {
+		gen2 := new(cryptolabs.MT19937)
+		gen2.Seed(uint32(i))
+	}
+	guessSeed, err := task6.CrackSeed(genTime, gen.Uint32())
 	if assert.NoError(t, err) {
 		assert.Equal(t, seed, guessSeed)
 	}
