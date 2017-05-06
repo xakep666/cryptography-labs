@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cryptolabs"
 	"cryptolabs/lab3/task1"
 	"cryptolabs/lab3/task2"
 	"cryptolabs/lab3/task3"
@@ -36,4 +37,17 @@ func TestTask3(t *testing.T) {
 	assert.Error(t, err)
 	extractedKey := task3.ExtractKey(decryptedUrl)
 	assert.Equal(t, task3.GeneratedKey, extractedKey)
+}
+
+func TestMySHA1(t *testing.T) {
+	testSet := []struct {
+		msg  []byte
+		hash [20]byte
+	}{
+		{[]byte("The quick brown fox jumps over the lazy dog"),
+			[20]byte{0x2f, 0xd4, 0xe1, 0xc6, 0x7a, 0x2d, 0x28, 0xfc, 0xed, 0x84, 0x9e, 0xe1, 0xbb, 0x76, 0xe7, 0x39, 0x1b, 0x93, 0xeb, 0x12}},
+	}
+	for _, v := range testSet {
+		assert.Equal(t, v.hash, cryptolabs.NewSHA1(v.msg).Digest())
+	}
 }
