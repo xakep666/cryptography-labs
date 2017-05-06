@@ -2,9 +2,11 @@ package main
 
 import (
 	"cryptolabs"
+	task32 "cryptolabs/lab1/task3"
 	"cryptolabs/lab3/task1"
 	"cryptolabs/lab3/task2"
 	"cryptolabs/lab3/task3"
+	"cryptolabs/lab3/task4"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"strings"
@@ -50,4 +52,15 @@ func TestMySHA1(t *testing.T) {
 	for _, v := range testSet {
 		assert.Equal(t, v.hash, cryptolabs.NewSHA1(v.msg).Digest())
 	}
+}
+
+func TestTask4(t *testing.T) {
+	key := task32.RandByteArray(16)
+	msg := []byte("some message")
+	msgWithMac := task4.Sha1Mac(key, msg)
+	assert.True(t, task4.CheckSha1Mac(key, msgWithMac))
+	msgWithMac[2] = 0xFE
+	msgWithMac[0] = 0x00
+	assert.False(t, task4.CheckSha1Mac(key, msgWithMac))
+	assert.Panics(t, func() { task4.CheckSha1Mac(key, []byte{0x00}) })
 }
