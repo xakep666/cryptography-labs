@@ -8,9 +8,11 @@ type SHA1 struct {
 	h0, h1, h2, h3, h4 uint32
 }
 
-func (s SHA1) sha1padding(msg []byte) (ret []byte) {
-	sourceLength := uint64(len(msg))
-	// stage 1 - pad to len(msg)%64 == 56
+func (s SHA1) sha1padding(msg []byte, sourceLength uint64) (ret []byte) {
+	if sourceLength == 0 {
+		sourceLength = uint64(len(msg))
+	}
+	// stage 1 - pad to sourceLength%64 == 56
 	bytesToAdd := (56 - len(msg)%64) % 64
 	stage1padding := make([]byte, bytesToAdd)
 	stage1padding[0] |= 1 << 7
@@ -22,7 +24,7 @@ func (s SHA1) sha1padding(msg []byte) (ret []byte) {
 	return
 }
 
-func (s SHA1) leftRotate(n uint32, shift uint) uint32 {
+func leftRotate(n uint32, shift uint) uint32 {
 	return (n << shift) | (n >> (32 - shift))
 }
 
@@ -45,8 +47,8 @@ func (s *SHA1) handleChunk(chunk []uint32) {
 		case i >= 60 && i <= 79:
 			f, k = b^c^d, 0xca62c1d6
 		}
-		temp := s.leftRotate(a, 5) + f + e + k + chunk[i]
-		a, b, c, d, e = temp, a, s.leftRotate(b, 30), c, d
+		temp := leftRotate(a, 5) + f + e + k + chunk[i]
+		a, b, c, d, e = temp, a, leftRotate(b, 30), c, d
 	}
 	s.h0 += a
 	s.h1 += b
@@ -64,21 +66,40 @@ func (s SHA1) Digest() (ret [20]byte) {
 	return
 }
 
+func splitMessageToChunks(msg []byte) (chunks [][]uint32) {
+	if len(msg)%64 != 0 {
+		panic("message must be aligned to 64 items")
+	}
+	chunks = make([][]uint32, len(msg)/64)
+	for i := 0; i < len(msg); i += 64 {
+		chunks[i] = make([]uint32, 80)
+		for j := 0; j < 16; j++ {
+			chunks[i][j] = binary.BigEndian.Uint32(msg[i+j<<2 : i+(j+1)<<2])
+		}
+		for j := 16; j < len(chunks[i]); j++ {
+			chunks[i][j] = leftRotate(chunks[i][j-3]^chunks[i][j-8]^chunks[i][j-14]^chunks[i][j-16], 1)
+		}
+	}
+	return
+}
+
 func NewSHA1(msg []byte) (ret SHA1) {
 	ret.h0 = uint32(0x67452301)
 	ret.h1 = uint32(0xEFCDAB89)
 	ret.h2 = uint32(0x98BADCFE)
 	ret.h3 = uint32(0x10325476)
 	ret.h4 = uint32(0xC3D2E1F0)
-	padded := ret.sha1padding(msg)
-	for i := 0; i < len(msg); i += 64 {
-		chunk := make([]uint32, 80)
-		for j := 0; j < 16; j++ {
-			chunk[j] = binary.BigEndian.Uint32(padded[i+j<<2 : i+(j+1)<<2])
-		}
-		for j := 16; j < len(chunk); j++ {
-			chunk[j] = ret.leftRotate(chunk[j-3]^chunk[j-8]^chunk[j-14]^chunk[j-16], 1)
-		}
+	padded := ret.sha1padding(msg, 0)
+	for _, chunk := range splitMessageToChunks(padded) {
+		ret.handleChunk(chunk)
+	}
+	return
+}
+
+func NewSHA1WithCustomOpts(msg []byte, h0, h1, h2, h3, h4 uint32, length uint64) (ret SHA1) {
+	ret.h0, ret.h1, ret.h2, ret.h3, ret.h4 = h0, h1, h2, h3, h4
+	padded := ret.sha1padding(msg, length)
+	for _, chunk := range splitMessageToChunks(padded) {
 		ret.handleChunk(chunk)
 	}
 	return
