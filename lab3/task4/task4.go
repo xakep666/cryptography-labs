@@ -5,17 +5,11 @@ import (
 	"cryptolabs"
 )
 
-func Sha1Mac(key, msg []byte) []byte {
-	mac := cryptolabs.NewSHA1(append(key, msg...)).Digest()
-	return append(mac[:], msg...)
+func Sha1Mac(key, msg []byte) (digest [20]byte) {
+	return cryptolabs.NewSHA1(append(key, msg...)).Digest()
 }
 
-func CheckSha1Mac(key, msgWithMac []byte) bool {
-	if len(msgWithMac) < 20 {
-		panic("invalid message length")
-	}
-	mac := msgWithMac[:20]
-	payload := msgWithMac[20:]
-	actualMac := cryptolabs.NewSHA1(append(key, payload...)).Digest()
-	return bytes.Equal(mac, actualMac[:])
+func CheckSha1Mac(key, msg []byte, digest [20]byte) bool {
+	actualDigest := cryptolabs.NewSHA1(append(key, msg...)).Digest()
+	return bytes.Equal(digest[:], actualDigest[:])
 }
