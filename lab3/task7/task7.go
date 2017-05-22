@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func isValidSignature(message string, signature []byte, urlFormat string) (bool, time.Duration) {
+func IsValidSignature(message string, signature []byte, urlFormat string) (bool, time.Duration) {
 	request := fmt.Sprintf(urlFormat, message, signature)
 	start := time.Now()
 	resp, err := http.Get(request)
@@ -24,13 +24,12 @@ func isValidSignature(message string, signature []byte, urlFormat string) (bool,
 
 func guessNextByte(message string, knownBytes []byte, delay time.Duration, urlFormat string) []byte {
 	suffixLen := sha1.Size - len(knownBytes)
-	//_, baseDelay := isValidSignature(message, bytes.Repeat([]byte{0}, sha1.Size), urlFormat)
 	expectedDuration := time.Duration(delay.Nanoseconds()*int64(len(knownBytes))) + 50*time.Millisecond
 	start := time.Now()
 	for i := 0; i < 0xFF; i++ {
 		suffix := make([]byte, suffixLen)
 		suffix[0] = byte(i)
-		valid, duration := isValidSignature(message, append(knownBytes, suffix...), urlFormat)
+		valid, duration := IsValidSignature(message, append(knownBytes, suffix...), urlFormat)
 		if valid {
 			return append(knownBytes, suffix...)
 		}

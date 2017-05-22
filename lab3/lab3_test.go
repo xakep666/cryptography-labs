@@ -10,6 +10,7 @@ import (
 	"cryptolabs/lab3/task4"
 	"cryptolabs/lab3/task5"
 	"cryptolabs/lab3/task7"
+	"cryptolabs/lab3/task8"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
@@ -112,4 +113,19 @@ func TestTask7(t *testing.T) {
 	fmt.Println("Calculated valid hmac ", string(validHmacHex))
 	delay := time.Millisecond * 50
 	fmt.Println(task7.CalculateHmac(testMsg, testUrlPattern, delay))
+}
+
+func TestTask8(t *testing.T) {
+	address := "127.0.0.1:8000"
+	testUrlPattern := "http://" + address + "/test?file=%s&signature=%x"
+	testMsg := "message"
+	calcUrl := "http://" + address + "/calc?file=" + testMsg
+	resp, err := http.Get(calcUrl)
+	defer resp.Body.Close()
+	assert.NoError(t, err)
+	validHmacHex, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	fmt.Println("Calculated valid hmac ", string(validHmacHex))
+	delay := time.Millisecond * 5
+	fmt.Println(task8.CalculateHmac(testMsg, testUrlPattern, delay))
 }
