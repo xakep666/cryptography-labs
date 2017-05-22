@@ -1,14 +1,13 @@
 package task7
 
 import (
-	"bytes"
 	"crypto/sha1"
 	"fmt"
 	"net/http"
 	"time"
 )
 
-func isValidSignature(message []byte, signature []byte, urlFormat string) (bool, time.Duration) {
+func isValidSignature(message string, signature []byte, urlFormat string) (bool, time.Duration) {
 	request := fmt.Sprintf(urlFormat, message, signature)
 	start := time.Now()
 	resp, err := http.Get(request)
@@ -23,10 +22,10 @@ func isValidSignature(message []byte, signature []byte, urlFormat string) (bool,
 	return false, end.Sub(start)
 }
 
-func guessNextByte(message, knownBytes []byte, delay time.Duration, urlFormat string) []byte {
+func guessNextByte(message string, knownBytes []byte, delay time.Duration, urlFormat string) []byte {
 	suffixLen := sha1.Size - len(knownBytes)
-	_, baseDelay := isValidSignature(message, bytes.Repeat([]byte{0}, sha1.Size), urlFormat)
-	expectedDuration := time.Duration(delay.Nanoseconds()*int64(len(knownBytes))) + 15*baseDelay
+	//_, baseDelay := isValidSignature(message, bytes.Repeat([]byte{0}, sha1.Size), urlFormat)
+	expectedDuration := time.Duration(delay.Nanoseconds()*int64(len(knownBytes))) + 50*time.Millisecond
 	start := time.Now()
 	for i := 0; i < 0xFF; i++ {
 		suffix := make([]byte, suffixLen)
@@ -45,10 +44,10 @@ func guessNextByte(message, knownBytes []byte, delay time.Duration, urlFormat st
 	return nil
 }
 
-func CalculateHmac(message []byte, urlFormat string) (ret [sha1.Size]byte) {
+func CalculateHmac(message string, urlFormat string, delay time.Duration) (ret [sha1.Size]byte) {
 	var knownBytes []byte
 	for i := byte(0); i < sha1.Size; i++ {
-		knownBytes = guessNextByte(message, knownBytes, Delay, urlFormat)
+		knownBytes = guessNextByte(message, knownBytes, delay, urlFormat)
 	}
 	copy(ret[:], knownBytes)
 	return

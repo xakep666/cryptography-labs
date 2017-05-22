@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestTask1(t *testing.T) {
@@ -100,27 +101,15 @@ func TestHmacSHA1(t *testing.T) {
 
 func TestTask7(t *testing.T) {
 	address := "127.0.0.1:8000"
-	urlPattern := "http://" + address + "/test?file=%s&signature=%x"
-	testMsg := []byte("message")
-	validHmac := cryptolabs.HmacSHA1(task7.Key, testMsg)
-	fmt.Printf("Valid hmac for message %s: % X\n", testMsg, validHmac)
-	err := task7.StartServer(address)
-	defer task7.StopServer()
+	testUrlPattern := "http://" + address + "/test?file=%s&signature=%x"
+	testMsg := "message"
+	calcUrl := "http://" + address + "/calc?file=" + testMsg
+	resp, err := http.Get(calcUrl)
+	defer resp.Body.Close()
 	assert.NoError(t, err)
-	resp, err := http.Get(fmt.Sprintf(urlPattern, testMsg, validHmac))
-	if assert.NoError(t, err) {
-		text, err := ioutil.ReadAll(resp.Body)
-		fmt.Printf("%s %v\n", text, err)
-		assert.Equal(t, 200, resp.StatusCode)
-		resp.Body.Close()
-	}
-	resp, err = http.Get(fmt.Sprintf(urlPattern, testMsg, 0xDD))
-	if assert.NoError(t, err) {
-		text, err := ioutil.ReadAll(resp.Body)
-		fmt.Printf("%s %v\n", text, err)
-		assert.Equal(t, resp.StatusCode, 422)
-		resp.Body.Close()
-	}
-	calculatedHmac := task7.CalculateHmac(testMsg, urlPattern)
-	assert.Equal(t, validHmac, calculatedHmac)
+	validHmacHex, err := ioutil.ReadAll(resp.Body)
+	assert.NoError(t, err)
+	fmt.Println("Calculated valid hmac ", string(validHmacHex))
+	delay := time.Millisecond * 50
+	fmt.Println(task7.CalculateHmac(testMsg, testUrlPattern, delay))
 }
